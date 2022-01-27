@@ -1,0 +1,28 @@
+{
+  "name": "lisysudokugenerator",
+  "version": "1.0.0",
+  "description": "Sudoku generation tools",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/7xLisyonok/lisySudokuGenerator.git"
+  },
+  "keywords": [
+    "sudoku",
+    "generator"
+  ],
+  "author": "7xLisyonok",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/7xLisyonok/lisySudokuGenerator/issues"
+  },
+  "homepage": "https://github.com/7xLisyonok/lisySudokuGenerator#readme",
+  "dependencies": {
+    "jest": "^27.4.7",
+    "lisy-sudoku-solver": "file:../solver"
+  }
+}
