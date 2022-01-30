@@ -29,19 +29,18 @@ const field = new GeometricField({
 
 const field = new GeometricField({
     blocks: `
-        1 1 1 2 2 2 3 3 3
-        1 1 1 2 2 2 3 3 3
-        4 4 4 5 5 5 6 6 6
-        4 4 4 5 5 5 6 6 6
-        7 7 7 8 8 8 9 9 9
-        7 7 7 8 8 8 9 9 9
-        A A A B B B C C C
-        A A A B B B C C C
-        D D D E E E F F F
+        1 1 1 1 1 1 1 1 1
+        2 2 2 2 2 2 2 2 2
+        1 1 1 1 1 1 1 1 1
+        2 2 2 2 2 2 2 2 2
+        1 1 1 1 1 1 1 1 1
+        2 2 2 2 2 2 2 2 2
+        1 1 1 1 1 1 1 1 1
+        2 2 2 2 2 2 2 2 2
+        1 1 1 1 1 1 1 1 1
     `,
 
-    nearest: Rect.nearestFunction(9, 9),
-    nearestList: Rect.nearestListFunction(9, 9),
+    nearest: new Rect(9, 9),
 });
 /*
         1 1 1 1 1 1 1 1 1
@@ -59,28 +58,6 @@ const field = new GeometricField({
 //console.log(field.nearestInfo());
 
 const { cells, blocks } = field;
-/*
-console.time('test1');
-const goodPairs1: Array<Array<number>> = [];
-blocks.forEach(block => {
-    const blockCells = block.cells;
-    const blockNearest = block.getAllNearest();
-    
-    blockCells.forEach(cellFrom => {
-        blockNearest.forEach(cellTo => {
-            if (cellFrom.index > cellTo.index) return;
-            //if (!cellFrom.block.isNearest(cellTo)) return;
-            //if (!cellTo.block.isNearest(cellFrom)) return;
-    
-            if (field.checkSwap(cellFrom.index, cellTo.index)) {
-                goodPairs1.push([cellFrom.index, cellTo.index]);
-            }
-        })
-    })
-});
-console.timeEnd('test1');
-console.log(goodPairs1);
-*/
 
 console.time('test2');
 function getGoodParts2() {
@@ -132,18 +109,24 @@ const colorsReplace: { [id: string] : string; } = {
     'I': '\x1b[46m\x1b[30mI\x1b[0m',  
 };
 
+console.clear();
+
 let iterationCount = 600;
 for(var i = 0; i < iterationCount; i++) {
     //console.time('goodPartsGeneration');
     const goodParts = getGoodParts2();
     //console.timeEnd('goodPartsGeneration');
 
+    if (goodParts.length === 0) {
+        throw new Error("No good parts");
+    }
+
     const rndPartIndex = getRandomInt(0, goodParts.length - 1);
     const rndPart = goodParts[rndPartIndex];
     field.swapCells(rndPart[0], rndPart[1]);
     
     if (i % 100 !== 0) continue;
-    console.clear();
+    //console.clear();
     console.log('---------------------------------');
     let renderedBlocks = field.renderBlocks()
         .split('')
@@ -155,6 +138,8 @@ for(var i = 0; i < iterationCount; i++) {
     ;    
     console.log(renderedBlocks);
 }
+
+
 
 
 

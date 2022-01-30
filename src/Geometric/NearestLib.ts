@@ -1,49 +1,47 @@
-export type NearestFunction = (cellIndex1: number, cellIndex2: number) => boolean;
-export type NearestListFunction = (cellIndex1: number) => Array<number>;
+type NearestFunction = (cellIndex1: number, cellIndex2: number) => boolean;
 
-export const Rect = {
-    indexToCoordFunc(width: number) {
-        return (index: number) => {
-            const x = index % width;
-            const y = (index - x) / width;
-            return [x, y];
-        }
-    },
+type NearestListFunction = (cellIndex1: number) => Array<number>;
 
-    coordToIndexFunc(width: number, height: number) {
-        return (x: number, y: number) => {
-            if (x < 0 || x >= width || y < 0 || y >= height) return -1;
-            return y * width + x;
-        }
-    },
+export interface Nearest {
+    Is: NearestFunction,
+    All: NearestListFunction
+};
 
-    nearestFunction(width: number, height: number): NearestFunction {
-        const toCoords = this.indexToCoordFunc(width);
-    
-        return (cIndex1, cIndex2) => {
-            const [x1, y1] = toCoords(cIndex1);
-            const [x2, y2] = toCoords(cIndex2);
-            const xDiff = Math.abs(x1 - x2);
-            const yDiff = Math.abs(y1 - y2);
-            return (xDiff + yDiff) <= 1;
-        }
-    },   
+export class Rect implements Nearest {
+    constructor(
+        private width: number,
+        private height: number
+    ) {}
 
-    nearestListFunction(width: number, height: number): NearestListFunction {
-        const toCoords = this.indexToCoordFunc(width);
-        const toIndex = this.coordToIndexFunc(width, height);
-    
-        return (cIndex) => {
-            const [x, y] = toCoords(cIndex);
-            const list = [
-                toIndex(x + 1, y),
-                toIndex(x - 1, y),
-                toIndex(x, y + 1),
-                toIndex(x, y - 1),
-            ];
-            return list.filter(index => index >= 0);
-        }
-    },
+    private toCoords(index: number) {
+        const x = index % this.width;
+        const y = (index - x) / this.width;
+        return [x, y];
+    }
+
+    private toIndex(x: number, y: number) {
+        if (x < 0 || x >= this.width || y < 0 || y >= this.height) return -1;
+        return y * this.width + x;
+    }
+
+    Is(cIndex1: number, cIndex2: number) {
+        const [x1, y1] = this.toCoords(cIndex1);
+        const [x2, y2] = this.toCoords(cIndex2);
+        const xDiff = Math.abs(x1 - x2);
+        const yDiff = Math.abs(y1 - y2);
+        return (xDiff + yDiff) <= 1;
+    }
+
+    All(cIndex: number) {
+        const [x, y] = this.toCoords(cIndex);
+        const list = [
+            this.toIndex(x + 1, y),
+            this.toIndex(x - 1, y),
+            this.toIndex(x, y + 1),
+            this.toIndex(x, y - 1),
+        ];
+        return list.filter(index => index >= 0);
+    }
 }
 
 
