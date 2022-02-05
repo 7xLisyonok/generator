@@ -28,19 +28,25 @@ const field = new GeometricField({
 
 
 const field = new GeometricField({
+    nearest: new Rect(15, 15),
+    
     blocks: `
-        1 1 1 1 1 1 1 1 1
-        2 2 2 2 2 2 2 2 2
-        1 1 1 1 1 1 1 1 1
-        2 2 2 2 2 2 2 2 2
-        1 1 1 1 1 1 1 1 1
-        2 2 2 2 2 2 2 2 2
-        1 1 1 1 1 1 1 1 1
-        2 2 2 2 2 2 2 2 2
-        1 1 1 1 1 1 1 1 1
+        1 1 1 2 2 2 1 1 1 . . . . . .   
+        2 2 2 1 1 1 2 2 2 . . . . . .   
+        1 1 1 2 2 2 1 1 1 . . . . . .   
+        2 2 2 1 1 1 2 2 2 . . . . . .   
+        1 1 1 2 2 2 1 1 1 . . . . . .   
+        2 2 2 1 1 1 2 2 2 . . . . . .   
+        1 1 1 2 2 2 . . . 2 2 2 1 1 1   
+        2 2 2 1 1 1 . . . 1 1 1 2 2 2   
+        1 1 1 2 2 2 . . . 2 2 2 1 1 1   
+        . . . . . . 2 2 2 1 1 1 2 2 2   
+        . . . . . . 1 1 1 2 2 2 1 1 1   
+        . . . . . . 2 2 2 1 1 1 2 2 2   
+        . . . . . . 1 1 1 2 2 2 1 1 1   
+        . . . . . . 2 2 2 1 1 1 2 2 2   
+        . . . . . . 1 1 1 2 2 2 1 1 1   
     `,
-
-    nearest: new Rect(9, 9),
 });
 /*
         1 1 1 1 1 1 1 1 1
@@ -59,86 +65,14 @@ const field = new GeometricField({
 
 const { cells, blocks } = field;
 
-console.time('test2');
-function getGoodParts2() {
-    const goodPairs: Array<Array<number>> = [];
-    for(var fromIndex = 0; fromIndex < cells.length; fromIndex++) {
-        for(var toIndex = fromIndex + 1; toIndex < cells.length; toIndex++) {
-            const cellFrom = cells[fromIndex];
-            if (cellFrom.block.index === 0) continue;
-            const cellTo = cells[toIndex];
-            if (cellTo.block.index === 0) continue;
-
-            if (cellFrom.block.isSame(cellTo.block)) continue;
-            if (!cellFrom.block.isNearest(cellTo)) continue;
-            //if (!cellTo.block.isNearest(cellFrom)) continue;
-
-            if (field.checkSwap(fromIndex, toIndex)) {
-                goodPairs.push([fromIndex, toIndex]);
-            }
-        }
+field.mix({ 
+    progressCallback: (iteration) => {
+        //if (iteration % 10 !== 0) return;
+        console.clear();
+        console.log('---------------------------------');
+        console.log(field.renderBlocks());
     }
-    return goodPairs;
-}
-//console.timeEnd('test2');
-//console.log(goodParts);
-
-function getRandomInt(from: number, to: number) {
-    const len = to - from + 1;
-    return Math.floor(Math.random() * len) + from;
-}
-
-const colorsReplace: { [id: string] : string; } = {
-    '1': '\x1b[31m1\x1b[0m',
-    '2': '\x1b[32m2\x1b[0m',
-    '3': '\x1b[33m3\x1b[0m',
-    '4': '\x1b[34m4\x1b[0m',
-    '5': '\x1b[35m5\x1b[0m',
-    '6': '\x1b[36m6\x1b[0m',
-    '7': '\x1b[43m\x1b[30m7\x1b[0m',
-    '8': '\x1b[47m\x1b[30m8\x1b[0m',
-    '9': '\x1b[46m\x1b[30m9\x1b[0m',
-    'A': '\x1b[31mA\x1b[0m',
-    'B': '\x1b[32mB\x1b[0m',
-    'C': '\x1b[33mC\x1b[0m',
-    'D': '\x1b[34mD\x1b[0m',
-    'E': '\x1b[35mE\x1b[0m',
-    'F': '\x1b[36mF\x1b[0m',
-    'G': '\x1b[43m\x1b[30mG\x1b[0m',
-    'H': '\x1b[47m\x1b[30mH\x1b[0m',
-    'I': '\x1b[46m\x1b[30mI\x1b[0m',  
-};
-
-console.clear();
-
-let iterationCount = 600;
-for(var i = 0; i < iterationCount; i++) {
-    //console.time('goodPartsGeneration');
-    const goodParts = getGoodParts2();
-    //console.timeEnd('goodPartsGeneration');
-
-    if (goodParts.length === 0) {
-        throw new Error("No good parts");
-    }
-
-    const rndPartIndex = getRandomInt(0, goodParts.length - 1);
-    const rndPart = goodParts[rndPartIndex];
-    field.swapCells(rndPart[0], rndPart[1]);
-    
-    if (i % 100 !== 0) continue;
-    //console.clear();
-    console.log('---------------------------------');
-    let renderedBlocks = field.renderBlocks()
-        .split('')
-        .map(char => {
-            if (char in colorsReplace) return colorsReplace[char];
-            return char;
-        })
-        .join('')
-    ;    
-    console.log(renderedBlocks);
-}
-
+});
 
 
 

@@ -1,92 +1,19 @@
 import { Nearest } from "./NearestLib.js";
 import { readArrayNumber, TextTemplate } from "lisy-sudoku-solver";
-
-
-
-class Cell {
-    constructor(
-        private _field: GeometricField, 
-        public index: number, 
-        public block: Block
-    ) { }
-
-    isNearest(cell: Cell): boolean {
-        return this._field
-            .allNearestIndexes(cell.index)
-            .some(nearestIndex => cell.index === nearestIndex);
-    }
-}
-
-
-
-class Block {
-    cells = new Set<Cell>();
-
-    get cellsArray() {
-        return new Array(...this.cells);
-    }
-
-    constructor(
-        private _field: GeometricField, 
-        public index: number = 0
-    ) {}
-
-    isNearest(cell: Cell) {
-        return this.cellsArray.some(blockCell => this._field.isNearestCells(cell.index, blockCell.index));
-    }
-
-    isSame(block: Block) {
-        return this.index === block.index;
-    }
-
-    addCell(cell: Cell) {
-        this.cells.add(cell);
-    }
-
-    addBlock(blockPart: Block) {
-        blockPart.cells.forEach(cell => this.addCell(cell));
-    }    
-
-    getConnectedParts() {
-        const parts = new Set<Block>();
-
-        this.cells.forEach(cell => {
-            // Проверяем, законечена ли ячейка уже с кем-то
-            let mainPart: Block | undefined;
-            parts.forEach(part => {
-                if (part.isNearest(cell)) {
-                    if (mainPart) {
-                        mainPart.addBlock(part);
-                        parts.delete(part);
-                    } else {
-                        part.addCell(cell);
-                        mainPart = part;
-                    }
-                }
-            });
-
-            // Если незаконекчена, создаём новую "часть"
-            if (!mainPart) {
-                const newPart = new Block(this._field);
-                newPart.addCell(cell);
-                parts.add(newPart);
-            }
-        });
-
-        return parts;
-    }
-
-    checkConnected() {
-        const cParts = this.getConnectedParts();
-        return cParts.size === 1;
-    }
-};
-
+import Random from "../Random.js";
+import { Block } from "./Block.js";
+import { Cell } from "./Cell.js";
 
 
 type GeometricFieldParams = {
     blocks: string | Array<number>;
     nearest: Nearest;
+};
+
+
+type MixParams = {
+    iterationCount?: number,
+    progressCallback: (iterationIndex?: number, iterationCount?: number) => void
 };
 
 
@@ -132,6 +59,7 @@ export class GeometricField {
         let blockIndex = 0;
         const blocksResult: Array<Block> = [];
         blocksInit.forEach(blockInit => {
+            if (blockInit.index === 0) return;
             const blockParts = blockInit.getConnectedParts();
             blockParts.forEach(block => {
                 block.index = ++blockIndex;
@@ -154,7 +82,7 @@ export class GeometricField {
         }
 
         const values = this.cells.map(cell => cell.block.index);
-        return this._textTemplate.render(values);
+        return this._textTemplate.renderNumbersColored(values);
     }
 
     private getBlockDescription() {
@@ -197,5 +125,49 @@ export class GeometricField {
                 return `${cell.index} => ${nearestList}`
             })
             .join('\n');
+    }
+
+    public get activeCellsCount() {
+        return this.cells.reduce((sum, cell) => sum + +(cell.block.index > 0), 0);
+    }
+
+
+    getGoodPairs() {
+        const cells = this.cells;
+        const goodPairs: Array<Array<number>> = [];
+
+        for(var fromIndex = 0; fromIndex < cells.length; fromIndex++) {
+            for(var toIndex = fromIndex + 1; toIndex < cells.length; toIndex++) {
+                const cellFrom = cells[fromIndex];
+                if (cellFrom.block.index === 0) continue;
+
+                const cellTo = cells[toIndex];
+                if (cellTo.block.index === 0) continue;
+    
+                if (cellFrom.block.isSame(cellTo.block)) continue;
+                if (!cellFrom.block.isNearest(cellTo)) continue;
+                if (!cellTo.block.isNearest(cellFrom)) continue;
+    
+                if (this.checkSwap(fromIndex, toIndex)) {
+                    goodPairs.push([fromIndex, toIndex]);
+                }
+            }
+        }
+
+        return goodPairs;
+    }
+
+    mix({ iterationCount = this.activeCellsCount * 2, progressCallback }: MixParams) {
+        for(var i = 0; i < iterationCount; i++) {
+            const goodParts = this.getGoodPairs();
+        
+            if (goodParts.length === 0) throw new Error("No swappable pairs");
+        
+            const rndPartIndex = Random.int(0, goodParts.length - 1);
+            const rndPart = goodParts[rndPartIndex];
+            this.swapCells(rndPart[0], rndPart[1]);
+            
+            progressCallback.call(this, i, iterationCount);
+        }        
     }
 }
