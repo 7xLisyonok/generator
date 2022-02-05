@@ -1,6 +1,7 @@
 import { Rect } from "./Geometric/NearestLib.js";
 //import { Puzzle } from "lisy-sudoku-solver";
 import { GeometricField } from "./Geometric/Field.js";
+import Random from "./Random.js";
 /*
 const field = new GeometricField({
     blocks: `
@@ -31,33 +32,66 @@ const field = new GeometricField({
     nearest: new Rect(15, 15),
     
     blocks: `
-        1 1 1 2 2 2 1 1 1 . . . . . .   
-        2 2 2 1 1 1 2 2 2 . . . . . .   
-        1 1 1 2 2 2 1 1 1 . . . . . .   
-        2 2 2 1 1 1 2 2 2 . . . . . .   
-        1 1 1 2 2 2 1 1 1 . . . . . .   
-        2 2 2 1 1 1 2 2 2 . . . . . .   
-        1 1 1 2 2 2 . . . 2 2 2 1 1 1   
-        2 2 2 1 1 1 . . . 1 1 1 2 2 2   
-        1 1 1 2 2 2 . . . 2 2 2 1 1 1   
-        . . . . . . 2 2 2 1 1 1 2 2 2   
-        . . . . . . 1 1 1 2 2 2 1 1 1   
-        . . . . . . 2 2 2 1 1 1 2 2 2   
-        . . . . . . 1 1 1 2 2 2 1 1 1   
-        . . . . . . 2 2 2 1 1 1 2 2 2   
-        . . . . . . 1 1 1 2 2 2 1 1 1   
+        111222111......
+        111222111......
+        111222111......
+        222111222......
+        222111222......
+        222111222......
+        111222...222111
+        111222...222111
+        111222...222111
+        ......222111222
+        ......222111222
+        ......222111222
+        ......111222111
+        ......111222111
+        ......111222111  
     `,
 });
 /*
-        1 1 1 1 1 1 1 1 1
-        2 2 2 2 2 2 2 2 2
-        3 3 3 3 3 3 3 3 3
-        4 4 4 4 4 4 4 4 4
-        5 5 5 5 5 5 5 5 5
-        6 6 6 6 6 6 6 6 6
-        7 7 7 7 7 7 7 7 7
-        8 8 8 8 8 8 8 8 8
-        9 9 9 9 9 9 9 9 9
+        111111111
+        222222222
+        333333333
+        444444444
+        555555555
+        666666666
+        777777777
+        888888888
+        999999999
+
+        1111222211112222
+        1111222211112222
+        1111222211112222
+        1111222211112222
+        2222111122221111
+        2222111122221111
+        2222111122221111
+        2222111122221111
+        1111222211112222
+        1111222211112222
+        1111222211112222
+        1111222211112222
+        2222111122221111
+        2222111122221111
+        2222111122221111
+        2222111122221111
+                
+        111222111......
+        111222111......
+        111222111......
+        222111222......
+        222111222......
+        222111222......
+        111222...222111
+        111222...222111
+        111222...222111
+        ......222111222
+        ......222111222
+        ......222111222
+        ......111222111
+        ......111222111
+        ......111222111        
 
 */
 //console.log(field);
@@ -65,56 +99,29 @@ const field = new GeometricField({
 
 const { cells, blocks } = field;
 
-field.mix({ 
-    progressCallback: (iteration) => {
-        //if (iteration % 10 !== 0) return;
-        console.clear();
-        console.log('---------------------------------');
-        console.log(field.renderBlocks());
+//if (iteration % 10 !== 0) return;
+
+const drawBlocks = () => {
+    process.stdout.cursorTo(0, 0);
+    console.log('---------------------------------');
+    console.log(field.renderBlocks());
+    console.log('---------------------------------');
+};
+
+
+console.clear();
+console.time('test1');
+
+field.mixFast({ 
+    iterationCount: 1000,
+    progressCallback: (iteration, count) => {
+        if (iteration % 50 !== 0) return;
+        const percent = Math.floor(iteration / (count-1) * 100);
+
+        drawBlocks();
+        console.log(percent + '%');
     }
 });
 
-
-
-
-
-/*
-111111122
-112222222
-333333333
-444444444
-555555555
-666666666
-777777777
-888888888
-999999999
-*/
-
-
-/*
-Reset = "\x1b[0m"
-Bright = "\x1b[1m"
-Dim = "\x1b[2m"
-Underscore = "\x1b[4m"
-Blink = "\x1b[5m"
-Reverse = "\x1b[7m"
-Hidden = "\x1b[8m"
-
-FgBlack = "\x1b[30m"
-FgRed = "\x1b[31m"
-FgGreen = "\x1b[32m"
-FgYellow = "\x1b[33m"
-FgBlue = "\x1b[34m"
-FgMagenta = "\x1b[35m"
-FgCyan = "\x1b[36m"
-FgWhite = "\x1b[37m"
-
-BgBlack = "\x1b[40m"
-BgRed = "\x1b[41m"
-BgGreen = "\x1b[42m"
-BgYellow = "\x1b[43m"
-BgBlue = "\x1b[44m"
-BgMagenta = "\x1b[45m"
-BgCyan = "\x1b[46m"
-BgWhite = "\x1b[47m"
-*/    
+drawBlocks();
+console.timeEnd('test1');
