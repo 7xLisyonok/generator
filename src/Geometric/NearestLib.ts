@@ -3,8 +3,9 @@ type NearestFunction = (cellIndex1: number, cellIndex2: number) => boolean;
 type NearestListFunction = (cellIndex1: number) => Array<number>;
 
 export interface Nearest {
-    Is: NearestFunction,
-    All: NearestListFunction
+    Is: NearestFunction;
+    All: NearestListFunction;
+    get size(): number;
 };
 
 export class Rect implements Nearest {
@@ -41,6 +42,10 @@ export class Rect implements Nearest {
             this.toIndex(x, y - 1),
         ];
         return list.filter(index => index >= 0);
+    }
+
+    get size() {
+        return this.width * this.height;
     }
 }
 
