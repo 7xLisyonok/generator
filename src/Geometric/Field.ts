@@ -1,6 +1,6 @@
 import { Nearest } from "./NearestLib.js";
 import { readArrayNumber, TextTemplate } from "lisy-sudoku-solver";
-import Random from "../Random.js";
+import { Random } from "lisy-sudoku-solver";
 import { Block } from "./Block.js";
 import { Cell } from "./Cell.js";
 
@@ -34,6 +34,10 @@ export class GeometricField {
         this._nearest = nearest;
         const blocksArr = readArrayNumber(blocks);
         this.createBlocks(blocksArr);
+        
+        if (this.cells.length !== this._nearest.size) {
+            throw new Error("this.cells.length !== this._nearest.size");
+        }
     }
 
     get activeCellsCount() {
@@ -78,7 +82,7 @@ export class GeometricField {
             this.swapCells(rndIndex1, rndIndex2);
             
             progressCallback.call(this, i, iterationCount);
-        }     
+        }
     }
 
     nearestInfo() {
@@ -92,19 +96,20 @@ export class GeometricField {
             .join('\n');
     }
 
-    private isNearestCells(cellIndex1: number, cellIndex2: number) {
+    isNearestCells(cellIndex1: number, cellIndex2: number) {
         return this._nearest.Is(cellIndex1, cellIndex2);
     }
 
-    private allNearestIndexes(cellIndex: number) {
+    allNearestIndexes(cellIndex: number) {
         return this._nearest.All(cellIndex);
     }
 
     /*
-    private allNearestCells(cellIndex: number) {
+    allNearestCells(cellIndex: number) {
         return this.allNearestIndexes(cellIndex).map(cellIndex => this.cells[cellIndex]);
     }
-
+    */
+    /*
     private checkBlocksConnected() {
         return this.blocks.every(block => block.checkConnected());
     }
@@ -159,9 +164,11 @@ export class GeometricField {
     }
 
     private checkSwap(cellIndex1: number, cellIndex2: number) {
-        this.swapCells(cellIndex1, cellIndex2);
         const blockCheck1 = this.cells[cellIndex1].block;
         const blockCheck2 = this.cells[cellIndex2].block;
+        if (blockCheck1.isSame(blockCheck2)) return false;
+
+        this.swapCells(cellIndex1, cellIndex2);
         const result = blockCheck1.checkConnected() && blockCheck2.checkConnected();
         this.swapCells(cellIndex1, cellIndex2);
         return result;
