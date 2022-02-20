@@ -68,7 +68,10 @@ export class GeometricField {
         }        
     }
 
-    mixFast({ iterationCount = this.activeCellsCount * 2, progressCallback }: MixParams) {
+    mixFast({ 
+        iterationCount = this.activeCellsCount * 2, 
+        progressCallback 
+    }: MixParams) {
         const cellsWB = this.cellsWithBlock;
 
         for(var i = 0; i < iterationCount; i++) {
