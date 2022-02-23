@@ -1,8 +1,8 @@
 {
-  "name": "lisysudokugenerator",
+  "name": "7x-sudoku-generator",
   "version": "1.0.0",
   "description": "Sudoku generation tools",
-  "main": "index.js",
+  "main": "dist/index.js",
   "type": "module",
   "scripts": {
     "test": "jest"
@@ -22,7 +22,7 @@
   },
   "homepage": "https://github.com/7xLisyonok/lisySudokuGenerator#readme",
   "dependencies": {
-    "jest": "^27.4.7",
-    "lisy-sudoku-solver": "file:../solver"
+    "7x-sudoku-solver": "file:../solver",
+    "jest": "^27.4.7"
   }
 }

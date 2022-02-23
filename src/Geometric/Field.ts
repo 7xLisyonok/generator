@@ -1,6 +1,6 @@
 import { Nearest } from "./NearestLib.js";
-import { readArrayNumber, TextTemplate } from "lisy-sudoku-solver";
-import { Random } from "lisy-sudoku-solver";
+import { readArrayNumber, TextTemplate } from "7x-sudoku-solver";
+import { Random } from "7x-sudoku-solver";
 import { Block } from "./Block.js";
 import { Cell } from "./Cell.js";
 
@@ -69,7 +69,7 @@ export class GeometricField {
     }
 
     mixFast({ 
-        iterationCount = this.activeCellsCount * 2, 
+        iterationCount = this.activeCellsCount, 
         progressCallback 
     }: MixParams) {
         const cellsWB = this.cellsWithBlock;
